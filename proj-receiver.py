@@ -126,6 +126,7 @@ while True:
     while not was_connected or ble.connected:
         if ble.connected:  # If BLE is connected...
             was_connected = True
+            pixels[0].fill((0, 255, 0))
 
             if uart.in_waiting:  # Check to see if any new data has been sent from the SENDER.
                 try:
