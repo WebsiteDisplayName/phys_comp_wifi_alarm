@@ -12,6 +12,7 @@ import digitalio
 import neopixel
 import touchio
 from adafruit_debouncer import Button
+import time
 
 # ================================
 # BLUETOOTH SETUP CODE & FUNCTIONS
@@ -104,41 +105,50 @@ while True:
         ble.stop_scan()  # And stop scanning.
 
     while uart_connection and uart_connection.connected:  # If connected...
-        for i in range(len(touchpad)):  # Scan through all CPB touchpads
-            touchpad[i].update()  # gets Debounced state
-            if touchpad[i].pressed:  # if a pad is touched
-                # then send the button corresponding to bluefruit_buttons for the pad pressed
-                # Note: This means we'll never send the 8th button, BUTTON.RIGHT,
-                # since there are only 7 touchpads on the CPB. RIGHT is sent by button_A, below
-                if not send_packet(uart_connection,
-                                   ButtonPacket(bluefruit_buttons[i], pressed=True)):
-                    uart_connection = None
-                    continue
-                print(f"Button {i} pressed!")
+        # for i in range(len(touchpad)):  # Scan through all CPB touchpads
+        #     touchpad[i].update()  # gets Debounced state
+        #     if touchpad[i].pressed:  # if a pad is touched
+        #         # then send the button corresponding to bluefruit_buttons for the pad pressed
+        #         # Note: This means we'll never send the 8th button, BUTTON.RIGHT,
+        #         # since there are only 7 touchpads on the CPB. RIGHT is sent by button_A, below
+        #         if not send_packet(uart_connection,
+        #                            ButtonPacket(bluefruit_buttons[i], pressed=True)):
+        #             uart_connection = None
+        #             continue
+        #         print(f"Button {i} pressed!")
 
-        for i in range(len(touchpad)):  # Scan through all CPB touchpads
-            if touchpad[i].released:  # if a pad is touched
-                if not send_packet(uart_connection, ColorPacket((0, 0, 0))):
-                    uart_connection = None
-                    continue
-                print(f"Button {i} RELEASED!")
+        # for i in range(len(touchpad)):  # Scan through all CPB touchpads
+        #     if touchpad[i].released:  # if a pad is touched
+        #         if not send_packet(uart_connection, ColorPacket((0, 0, 0))):
+        #             uart_connection = None
+        #             continue
+        #         print(f"Button {i} RELEASED!")
 
-        button_A.update()
-        button_B.update()  # VERY important to call .update() on EACH button before checking state
-        if button_A.pressed:  # if button is pressed
-            print("button A pressed")
+        pixels = neopixel.Neopixel(
+            board.NEOPIXEL, 10, brightness=0.3, auto_write=True)
+        pixels[0].fill((0, 255, 0))
+        button_external.update()
+        # button_A.update()
+        # button_B.update()  # VERY important to call .update() on EACH button before checking state
+        if button_external.pressed:  # if button is pressed
+            print("Button pressed")
+            # if not send_packet(uart_connection,
+            #                    ButtonPacket(bluefruit_buttons[len(bluefruit_buttons)-1], pressed=True)):
             if not send_packet(uart_connection,
-                               ButtonPacket(bluefruit_buttons[len(bluefruit_buttons)-1], pressed=True)):
+                               ButtonPacket(ButtonPacket.BUTTON_1, pressed=True)):
                 uart_connection = None
                 continue
-        elif button_A.released:
+        elif button_external.released:
             if not send_packet(uart_connection, ColorPacket((0, 0, 0))):
                 uart_connection = None
                 continue
-        elif button_B.pressed:
-            print("button B pressed")
-            user_input = "CHASE" + "\r\n"
-            if not send_packet(uart_connection, user_input):
-                uart_connection = None
-                continue
-            print(f"Just sent message {user_input}")
+
+    pixels[0].fill((0, 0, 0))
+
+    # elif button_B.pressed:
+    #     print("button B pressed")
+    #     user_input = "CHASE" + "\r\n"
+    #     if not send_packet(uart_connection, user_input):
+    #         uart_connection = None
+    #         continue
+    #     print(f"Just sent message {user_input}")

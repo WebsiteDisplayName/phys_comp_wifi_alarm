@@ -58,7 +58,7 @@ speaker.value = True
 audio = AudioOut(board.SPEAKER)
 
 # set path where sound files can be found
-path = "drumSounds/"
+path = ""
 
 # to play a sound, call the play_sound function & pass in a
 # filename as a string. Be sure to include the extension, e.g. "splat.wav")
@@ -73,20 +73,20 @@ def play_sound(filename):
 
 
 # set up a list for my drum_sounds
-drum_sounds = ["bass_hit_c.wav",
-               "bd_tek.wav",
-               "bd_zome.wav",
-               "drum_cowbell.wav",
-               "elec_cymbal.wav",
-               "elec_hi_snare.wav",
-               "scratch.wav",
-               "splat.wav"]
+# drum_sounds = ["bass_hit_c.wav",
+#                "bd_tek.wav",
+#                "bd_zome.wav",
+#                "drum_cowbell.wav",
+#                "elec_cymbal.wav",
+#                "elec_hi_snare.wav",
+#                "scratch.wav",
+#                "splat.wav"]
 
 
 # SET UP THE 10 NEOPIXELS ON THE CPB. NAME THEM PIXELS
-pixels = neopixel.NeoPixel(board.NEOPIXEL, 10)
-strip = neopixel.NeoPixel(board.A1, 30,
-                          brightness=0.5, auto_write=True)
+pixels_length = 10
+pixels = neopixel.Neopixel(
+    board.NEOPIXEL, pixels_length, brightness=0.3, auto_write=True)
 
 # SET UP COLORS & A COLORS LIST
 RED = (255, 0, 0)
@@ -118,10 +118,10 @@ while True:
     # Name prints once each time the board isn't connected
     print(f"Advertising as: {advertisement.complete_name}")
     was_connected = False
-    blink1 = Blink(pixels, speed=0.1,
-                   color=BLACK, auto_clear=True)
-    blink2 = Blink(strip, speed=0.1,
-                   color=BLACK, auto_clear=True)
+    # blink1 = Blink(pixels, speed=0.1,
+    #                color=BLACK, auto_clear=True)
+    # blink2 = Blink(strip, speed=0.1,
+    #                color=BLACK, auto_clear=True)
 
     while not was_connected or ble.connected:
         if ble.connected:  # If BLE is connected...
@@ -139,31 +139,44 @@ while True:
                 # If the packet is a button packet...
                 if isinstance(packet, ButtonPacket):
                     if packet.pressed:  # If the buttons on the Remote Control are pressed...
-                        for i in range(len(bluefruit_buttons)):
-                            if packet.button == bluefruit_buttons[i]:
-                                blink1.animate()
-                                blink2.animate()
-                                print(f"Button Pressed: {i}")
-                                pixels.fill(colors[i])
-                                strip.fill(colors[i])
-                                pixels.show()
-                                strip.show()
-                                play_sound(drum_sounds[i])
+                        # for i in range(len(bluefruit_buttons)):
+                        #     if packet.button == bluefruit_buttons[i]:
+                        #         blink1.animate()
+                        #         blink2.animate()
+                        #         print(f"Button Pressed: {i}")
+                        #         pixels.fill(colors[i])
+                        #         strip.fill(colors[i])
+                        #         pixels.show()
+                        #         strip.show()
+                        #         play_sound(drum_sounds[i])
+                        color = (0, 255, 0)
+                        pixels[0] = color
+                        play_sound("tick.wav")
+                        for idx in range(1, pixels_length):
+                            pixels[idx-1] = (0, 0, 0)
+                            pixels[idx] = color
+                            play_sound("tick.wav")
+                        for idx in range(pixels_length-2, -1, -1):
+                            pixels[idx+1] = (0, 0, 0)
+                            pixels[idx] = color
+                            play_sound("tick.wav")
+                        pixels.fill((0, 0, 0))
+
                 elif isinstance(packet, ColorPacket):
-                    blink1.animate()
-                    blink2.animate()
+                    # blink1.animate()
+                    # blink2.animate()
                     pixels.fill(packet.color)
-                    strip.fill(packet.color)
-                    pixels.show()
-                    strip.show()
-                elif isinstance(packet, RawTextPacket):
-                    if "CHASE" in packet.text.decode().strip():
-                        chase = Chase(pixels, speed=0.1,
-                                      color=WHITE, size=3, spacing=6)
-                        chase_strip = Chase(
-                            strip, speed=0.1, color=WHITE, size=1, spacing=1)
-                        chase.animate()
-                        chase_strip.animate()
+                    # strip.fill(packet.color)
+                    # pixels.show()
+                    # strip.show()
+                # elif isinstance(packet, RawTextPacket):
+                #     if "CHASE" in packet.text.decode().strip():
+                #         chase = Chase(pixels, speed=0.1,
+                #                       color=WHITE, size=3, spacing=6)
+                #         chase_strip = Chase(
+                #             strip, speed=0.1, color=WHITE, size=1, spacing=1)
+                #         chase.animate()
+                #         chase_strip.animate()
 
     # If we got here, we lost the connection. Go up to the top and start
     # advertising again and waiting for a connection.
