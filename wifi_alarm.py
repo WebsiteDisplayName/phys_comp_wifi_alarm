@@ -1,11 +1,3 @@
-# outlook login
-# gmail_user = 'bcalarm12345@outlook.com'
-# gmail_password = 'suitcase12345'
-
-# mailjet
-# gmail_user = 'bcalarm12345@outlook.com'
-# gmail_password = 'suitcase12345+'
-#
 
 # import wifi
 # mac_address = [f"{i:02x}" for i in wifi.radio.mac_address]
