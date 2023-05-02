@@ -125,5 +125,5 @@ while True:
         for idx in range(20):
             rainbow_strip.animate()
             time.sleep(0.2)
-        post_request("target_emails.txt")
         rainbow_strip.fill((0, 0, 0))
+        post_request("target_emails.txt")
