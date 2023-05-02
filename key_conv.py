@@ -2,6 +2,7 @@ import os
 from base64 import b64encode
 
 
+# https://stackoverflow.com/questions/6999565/python-https-get-with-basic-authentication
 def basic_auth(username, password):
     token = b64encode(f"{username}:{password}".encode(
         'utf-8')).decode("ISO-8859-1")

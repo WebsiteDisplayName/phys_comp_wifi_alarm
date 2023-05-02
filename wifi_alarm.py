@@ -27,28 +27,23 @@ pool = socketpool.SocketPool(wifi.radio)
 requests = adafruit_requests.Session(pool, ssl.create_default_context())
 
 # https://timeapi.io/swagger/index.html
-url = "https://timeapi.io/api/Time/current/zone?timeZone="
+time_url = "https://timeapi.io/api/Time/current/zone?timeZone="
 timezone = "America/New_York"
-url += timezone
-response = requests.get(url)
-json = response.json()
+time_url += timezone
 
 
-def ret_time(json_obj):
-    day = json_obj['dayOfWeek']
-    date = json_obj['date']
-    time = json_obj['time']
-    timezone = json_obj['timeZone']
+def ret_time(time_url):
+    time_response = requests.get(time_url)
+    time_json = time_response.json()
+    day = time_json['dayOfWeek']
+    date = time_json['date']
+    time = time_json['time']
+    timezone = time_json['timeZone']
 
     comb_time = f"{timezone}: {day}, {date} {time}"
     return comb_time
 
-
-print(json)
-print(json['time'])
-print(ret_time(json))
-
-
+# https://stackoverflow.com/questions/6999565/python-https-get-with-basic-authentication
 # Authorization token: we need to base 64 encode it
 # and then decode it to acsii as python 3 stores it as a byte string
 
@@ -61,34 +56,47 @@ print(ret_time(json))
 # username = os.getenv("MJ_APIKEY_PUBLIC")
 # password = os.getenv("MJ_APIKEY_PRIVATE")
 
-headers = {
-    'Content-Type': 'application/json',
-    'Authorization': os.getenv("COMB_KEY")
-}
+# mailjet API provider: https://dev.mailjet.com/email/guides/send-api-V3/
+# https://curlconverter.com/
 
-json_data = {
-    'Messages': [
-        {
-            'From': {
-                'Email': 'bcalarm12345@outlook.com',
-                'Name': 'Assistive Tech Alarm',
-            },
-            'To': [
-                {
-                    'Email': 'rowemg@bc.edu',
-                    'Name': 'passenger 1',
+
+def post_request(text_file_name):
+
+    with open(text_file_name) as f:
+        email_list = [email.strip() for email in f]
+
+    to_dict_list = []
+    for email in email_list:
+        tempDict = dict()
+        tempDict['Email'] = email
+        tempDict['Name'] = ''
+        to_dict_list.append(tempDict)
+
+    headers = {
+        'Content-Type': 'application/json',
+        'Authorization': os.getenv("COMB_KEY")
+    }
+
+    json_data = {
+        'Messages': [
+            {
+                'From': {
+                    'Email': 'bcalarm12345@outlook.com',
+                    'Name': 'Assistive Tech Alarm',
                 },
-            ],
-            'Subject': 'The Alarm Button Was Pressed!',
-            'TextPart': 'Dear passenger 1, welcome to Mailjet! May the delivery force be with you!',
-            'HTMLPart': '<h3>Dear passenger 1, welcome to <a href="https://www.mailjet.com/">Mailjet</a>!</h3><br />May the delivery force be with you!',
-        },
-    ],
-}
+                'To': to_dict_list,
+                'Subject': 'The Alarm Button Was Pressed!',
+                'TextPart': f'Sent: {ret_time(time_url)}',
+            },
+        ],
+    }
 
-response = requests.post(
-    'https://api.mailjet.com/v3.1/send',
-    headers=headers,
-    json=json_data
-)
-print(response.text)
+    response = requests.post(
+        'https://api.mailjet.com/v3.1/send',
+        headers=headers,
+        json=json_data
+    )
+    print(response.status_code)
+
+
+post_request("target_emails.txt")
