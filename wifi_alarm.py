@@ -1,30 +1,7 @@
-# import smtplib
-
-# gmail_user = 'bcalarm12345@gmail.com'
+# outlook login
+# gmail_user = 'bcalarm12345@outlook.com'
 # gmail_password = 'suitcase12345'
 
-# sent_from = gmail_user
-# to = ['rowemg@gmail.com', 'zantaiyo@gmail.com']
-# subject = 'Lorem ipsum dolor sit amet'
-# body = 'consectetur adipiscing elit'
-
-# email_text = """\
-# From: %s
-# To: %s
-# Subject: %s
-
-# %s
-# """ % (sent_from, ", ".join(to), subject, body)
-
-# try:
-#     smtp_server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
-#     smtp_server.ehlo()
-#     smtp_server.login(gmail_user, gmail_password)
-#     smtp_server.sendmail(sent_from, to, email_text)
-#     smtp_server.close()
-#     print("Email sent successfully!")
-# except Exception as ex:
-#     print("Something went wrong….", ex)
 
 # import wifi
 # mac_address = [f"{i:02x}" for i in wifi.radio.mac_address]
@@ -72,9 +49,6 @@ print(json['time'])
 print(ret_time(json))
 
 
-# import requests
-
-
 # Authorization token: we need to base 64 encode it
 # and then decode it to acsii as python 3 stores it as a byte string
 
@@ -89,7 +63,7 @@ print(ret_time(json))
 
 headers = {
     'Content-Type': 'application/json',
-    'Authorization': 'Basic MGRlZTI1MmQ2NzhhMGEwYzE0NDBiYzkzN2FmNjA4MTc6NGI3MjAwNjI4ODRkNzNkM2RhOTI5N2MyMWRlYjc1ZDY='
+    'Authorization': os.getenv("COMB_KEY")
 }
 
 json_data = {
@@ -97,7 +71,7 @@ json_data = {
         {
             'From': {
                 'Email': 'bcalarm12345@outlook.com',
-                'Name': 'Mailjet Pilot',
+                'Name': 'Assistive Tech Alarm',
             },
             'To': [
                 {
@@ -105,7 +79,7 @@ json_data = {
                     'Name': 'passenger 1',
                 },
             ],
-            'Subject': 'Your email flight plan!',
+            'Subject': 'The Alarm Button Was Pressed!',
             'TextPart': 'Dear passenger 1, welcome to Mailjet! May the delivery force be with you!',
             'HTMLPart': '<h3>Dear passenger 1, welcome to <a href="https://www.mailjet.com/">Mailjet</a>!</h3><br />May the delivery force be with you!',
         },
@@ -116,19 +90,5 @@ response = requests.post(
     'https://api.mailjet.com/v3.1/send',
     headers=headers,
     json=json_data
-    # ,auth=(os.getenv('MJ_APIKEY_PUBLIC', ''),
-    #       os.getenv('MJ_APIKEY_PRIVATE', '')),
 )
 print(response.text)
-# at this point you could check the status etc
-# this gets the page text
-
-# Note: json_data will not be serialized by requests
-# exactly as it was in the original request.
-#data = '{\n\t\t"Messages":[\n\t\t\t\t{\n\t\t\t\t\t\t"From": {\n\t\t\t\t\t\t\t\t"Email": "pilot@mailjet.com",\n\t\t\t\t\t\t\t\t"Name": "Mailjet Pilot"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t"To": [\n\t\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\t\t"Email": "passenger1@mailjet.com",\n\t\t\t\t\t\t\t\t\t\t"Name": "passenger 1"\n\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t],\n\t\t\t\t\t\t"Subject": "Your email flight plan!",\n\t\t\t\t\t\t"TextPart": "Dear passenger 1, welcome to Mailjet! May the delivery force be with you!",\n\t\t\t\t\t\t"HTMLPart": "<h3>Dear passenger 1, welcome to <a href=\\"https://www.mailjet.com/\\">Mailjet</a>!</h3><br />May the delivery force be with you!"\n\t\t\t\t}\n\t\t]\n\t}'
-# response = requests.post(
-#    'https://api.mailjet.com/v3.1/send',
-#    headers=headers,
-#    data=data,
-#    auth=(os.getenv('MJ_APIKEY_PUBLIC', ''), os.getenv('MJ_APIKEY_PRIVATE', '')),
-# )
