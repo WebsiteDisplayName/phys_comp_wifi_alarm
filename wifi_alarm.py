@@ -2,11 +2,17 @@
 # gmail_user = 'bcalarm12345@outlook.com'
 # gmail_password = 'suitcase12345'
 
+# mailjet
+# gmail_user = 'bcalarm12345@outlook.com'
+# gmail_password = 'suitcase12345+'
+#
 
 # import wifi
 # mac_address = [f"{i:02x}" for i in wifi.radio.mac_address]
 # print(':'.join(mac_address))
 
+import digitalio
+from adafruit_debouncer import Button
 import board
 import adafruit_requests
 import socketpool
@@ -16,7 +22,17 @@ import time
 import os
 import rtc
 import circuitpython_schedule as schedule
+import board
+import neopixel
+from adafruit_led_animation.animation.rainbow import Rainbow
 
+strip = neopixel.NeoPixel(board.GP14, 30)
+rainbow_strip = Rainbow(strip, speed=0.05, period=2)
+
+button_input = digitalio.DigitalInOut(board.GP15)  # Wired to GP15
+# Note: Pull.UP for external buttons
+button_input.switch_to_input(digitalio.Pull.UP)
+button = Button(button_input)  # NOTE: False for external buttons
 
 clock = rtc.RTC()
 
@@ -99,4 +115,15 @@ def post_request(text_file_name):
     print(response.status_code)
 
 
-post_request("target_emails.txt")
+rainbow_strip.fill((0, 0, 0))
+
+print("Loop")
+while True:
+    button.update()  # Gets current state of button
+    if button.pressed:  # True if pressed
+        print("PRESSED")
+        for idx in range(20):
+            rainbow_strip.animate()
+            time.sleep(0.2)
+        post_request("target_emails.txt")
+        rainbow_strip.fill((0, 0, 0))
